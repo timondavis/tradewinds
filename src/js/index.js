@@ -1,3 +1,5 @@
+import '../style/style.scss';
+
 let Phaser = require('phaser');
 let ConveyorScene = require('./Game/Scene/Conveyor.scene');
 
