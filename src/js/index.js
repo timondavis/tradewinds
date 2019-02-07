@@ -1,9 +1,9 @@
 import '../style/style.scss';
 
 let Phaser = require('phaser');
-let ConveyorScene = require('./Game/Scene/Conveyor.scene');
+let LoadingScene = require('./Game/Scene/Loading.scene');
 
-let conveyorScene = new ConveyorScene('Conveyor');
+let conveyorScene = new LoadingScene('Loading');
 
 console.log(conveyorScene);
 
@@ -14,7 +14,7 @@ let game = new Phaser.Game({
    height: 600,
    scene: [conveyorScene],
    pixelArt: true,
-   backgroundColor: 'dfdfdf'
+   backgroundColor: '000'
 });
 
 
