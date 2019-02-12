@@ -1,21 +1,24 @@
 import '../style/style.scss';
+import 'phaser';
+import config from './Game/Config';
 
-let Phaser = require('phaser');
-let LoadingScene = require('./Game/Scene/Loading.scene');
+import SceneDictionary from './Game/Util/Scene.dictionary';
 
-let conveyorScene = new LoadingScene('Loading');
+import LoadingScene from './Game/Scene/Loading.scene';
+import SeaScene from './Game/Scene/Sea.scene';
 
-console.log(conveyorScene);
+class Game extends Phaser.Game {
+
+    constructor(config) {
+        super(config);
+        this.scene.add(SceneDictionary.LOADING, LoadingScene);
+        this.scene.add(SceneDictionary.SEA, SeaScene);
+        this.scene.start(SceneDictionary.LOADING);
+    }
+}
 
 
-let game = new Phaser.Game({
-   type: Phaser.AUTO,
-   width: 800,
-   height: 600,
-   scene: [conveyorScene],
-   pixelArt: true,
-   backgroundColor: '000'
-});
+let game = new Game(config);
 
 
 

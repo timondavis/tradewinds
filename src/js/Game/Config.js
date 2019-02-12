@@ -3,7 +3,7 @@ export default {
     width: 800,
     height: 600,
     pixelArt: true,
-    backgroundColor: '000'
+    backgroundColor: 'dfdfdf',
     roundPixels: true,
     physics : {
         default: 'arcade',
