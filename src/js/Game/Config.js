@@ -9,7 +9,10 @@ export default {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: false
+            debug: true
         },
-    }
+    },
+    boatSpeed : 1,
+    scaleX: 2,
+    scaleY: 1
 }

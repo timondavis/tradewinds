@@ -2,6 +2,7 @@ import 'phaser';
 import EventDictionary from '../Util/Event.dictionary';
 import MapDictionary from '../Util/Map.dictionary';
 import PlayModeDictionary from '../Util/PlayMode.dictionary';
+import SceneDictionary from '../Util/Scene.dictionary';
 
 import PlayerBoat from '../Sprite/PlayerBoat.sprite';
 
@@ -20,8 +21,13 @@ export default class SeaScene extends Phaser.Scene {
         this.landLayer = null;
         this.blockedLayer = null;
         this.map = null;
+        this.tileSprite = null;
 
         this.playerBoat = null;
+
+        this.windVector = new Phaser.Math.Vector2(0, 0);
+        this.initWindVector();
+        this.windTimer = null;
     }
 
     create() {
@@ -29,16 +35,26 @@ export default class SeaScene extends Phaser.Scene {
 
         this.createPlayer();
         this.createControls();
+        this.configureCamera();
+
+           this.scene.launch(SceneDictionary.DEBUG);
     }
 
     update() {
-        this.playerBoat.update(this.cursors);
+
+        this.playerBoat.update(this.cursors, this.windVector);
+
+        if (this.cursors.space.isDown) {
+            this.scene.launch(SceneDictionary.PAUSED);
+            this.scene.pause();
+        }
     }
 
     createMap() {
         // Paint a repeating water tile across breadth of map
         // @todo set width correctly by reading the map and using math to determine true w * h
-        this.add.tileSprite(0, 0, 8192, 8192, MapDictionary.TILESET.ISLAND, 1);
+        this.tileSprite = this.add.tileSprite(0, 0, 8192, 8192, MapDictionary.TILESET.ISLAND, 1);
+        this.tileSprite.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Read in the tilemap (.json sourced) to the map for the level.
         this.map = this.make.tilemap({
@@ -50,7 +66,9 @@ export default class SeaScene extends Phaser.Scene {
 
         // Read map's tile layers and apply to the level map.
         this.landLayer = this.map.createStaticLayer(MapDictionary.LAYER.LAND, this.tiles, 0, 0);
+        this.landLayer.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
         this.blockedLayer = this.map.createStaticLayer(MapDictionary.LAYER.BLOCKED, this.tiles, 0, 0);
+        this.blockedLayer.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Set Collidable tiles.  Land tiles will not be collidable unless steering a boat.
         if (this._PLAYMODE === PlayModeDictionary.BOAT) {
@@ -69,4 +87,46 @@ export default class SeaScene extends Phaser.Scene {
     createControls() {
         this.cursors = this.input.keyboard.createCursorKeys();
     }
+
+    configureCamera() {
+
+        this.cameras.main.startFollow(this.playerBoat);
+        this.cameras.main.zoom = 2;
+    }
+
+    initWindVector() {
+
+        // Set direction in radians. -1, 1 rads.
+        let windDirection = (Math.random() * 2) - 1;
+
+        // wind factor starts between 0.25 and 0.5.
+        let windFactor = (Math.random() * 0.25) + 0.25;
+
+        this.windVector = new Phaser.Math.Vector2(windDirection * Math.PI, windFactor);
+
+        this.windTimer = this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                this.updateWindVector();
+            },
+            callbackScope: this,
+            repeat: -1,
+        });
+    }
+
+    updateWindVector() {
+        const windDirectionDelta = (Math.random() * 0.6) -0.3 ;
+        const windFactorDelta = (Math.random() * 0.2) - 0.1;
+
+        let windDirection = this.windVector.x += windDirectionDelta;
+        if (windDirection > 1) { windDirection = 1; }
+        if (windDirection < -1) { windDirection = -1; }
+
+        let windFactor = this.windVector.y += windFactorDelta;
+        if (windFactor > 1) { windFactor = 1; }
+        if (windFactor < 0) { windFactor = 0; }
+
+        this.windVector = new Phaser.Math.Vector2(windDirection, windFactor);
+    }
 }
+
