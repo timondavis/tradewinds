@@ -17,9 +17,9 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.scene.physics.world.enable(this);
         this.scene.add.existing(this);
 
-        this.bearing = 0.01;
-        this.maxBearing = 360;
-        this.minBearing = 0.01;
+        this.bearing = 0.001 * Math.PI;
+        this.maxBearing = 2 * Math.PI;
+        this.minBearing = 0.001;
         this.sailHeight = 1;
         this.maxSailHeight = 1;
         this.minSailHeight = 0.01;
@@ -27,41 +27,16 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.debug = this.scene.sys.game.config.debug;
     }
 
-    update(cursors, windVector) {
+    update(cursors, windMachine) {
 
         this.handleNavigation(cursors);
-        this.handleWind(windVector);
+        this.handleWind(windMachine);
     }
 
-    handleWind(windVector) {
+    handleWind(windMachine) {
 
-        // Break down wind direction and vector
-        let windDirection = Phaser.Math.Wrap(Phaser.Math.RadToDeg(windVector.x), 0, 359);
-        let windFactor = windVector.y;
+        let windCaughtPercentage = windMachine.getWindCatchPercentage(this.bearing);
 
-        let windAngle = 270;
-        let minWindAngle = -1 * (windAngle/2);
-        let maxWindAngle = windAngle/2;
-        let adjustedWindDirection = 0;
-
-        let adjustedBearing = this.shiftCircle(this.bearing - windDirection);
-
-            let debugScene = this.scene.scene.get(SceneDictionary.DEBUG);
-            debugScene.bearing.setText( 'Bearing: ' + this.bearing.toFixed(3));
-            debugScene.windDirection.setText( 'Wind Direction: ' + windDirection.toFixed(3));
-            debugScene.adjustedBearing.setText( 'Adjusted Bearing: ' + adjustedBearing.toFixed(3));
-            debugScene.adjustedWindDirection.setText( 'Adjusted Wind Direction: ' + adjustedWindDirection.toFixed(3));
-            debugScene.minWindCone.setText( 'Min Wind Cone: ' + minWindAngle.toFixed(3) );
-            debugScene.maxWindCone.setText( 'Max Wind Cone: ' + maxWindAngle.toFixed(3) );
-            /*console.log('minWindAngle: ' + minWindAngle);
-            console.log('maxWindAngle: ' + maxWindAngle);
-            console.log('adjustedWindDirection: ' + adjustedWindDirection);
-            console.log('adjustedBearing:' + adjustedBearing);*/
-
-        // Compare ships heading to the arc of wind power, then account for the config's boat speed and
-        // the height of the sails.
-        let windCaughtPercentage = Phaser.Math.Percent(adjustedBearing, minWindAngle, adjustedWindDirection, maxWindAngle);
-            debugScene.windCaughtPct.setText( 'Wind Caught: ' + (windCaughtPercentage * 100).toFixed(2) + '%')
         windCaughtPercentage *= this.sailHeight;
         //console.log(windCaughtPercentage);
         const boatSpeed = 75; //this.scene.sys.game.config.boatSpeed;
@@ -70,48 +45,44 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         if (windCaughtPercentage < 0.05 && this.sailHeight > 0.1) {
             windCaughtPercentage = 0.05;
         }
-        if (this.sailHeight == this.minSailHeight) {
+        if (this.sailHeight === this.minSailHeight) {
             magnitude = 0;
         } else {
             magnitude = windCaughtPercentage * boatSpeed;
         }
 
-        let bodyVelocityX = Math.sin(Phaser.Math.DegToRad(this.bearing)) * magnitude;
-        let bodyVelocityY = -1 * Math.cos(Phaser.Math.DegToRad(this.bearing)) * magnitude;
-
-        /*console.log('boat speed: ' + boatSpeed);
-        console.log('wind caught pct: ' + windCaughtPercentage);
-        console.log('x: ' + bodyVelocityX);
-        console.log('y: ' + bodyVelocityY);
-        */
+        let bodyVelocityX = Math.sin(this.bearing) * magnitude;
+        let bodyVelocityY = -1 * Math.cos(this.bearing) * magnitude;
 
         this.body.setVelocityX(bodyVelocityX);
         this.body.setVelocityY(bodyVelocityY);
 
-            debugScene.velocity.setText( 'Velocity: ' + ((this.body.velocity.x + this.body.velocity.y) / 2).toFixed());
+        /*debugScene.velocity.setText( 'Velocity: ' + ((this.body.velocity.x + this.body.velocity.y) / 2).toFixed());*/
     }
 
     handleNavigation(cursors) {
 
+        let turnSpeed = 0.0025;
+        let sailChangeSpeed = 0.01;
+
         if (cursors.right.isDown) {
-            this.bearing += 0.5;
+            this.bearing = Phaser.Math.Wrap(this.bearing + turnSpeed * Math.PI, this.minBearing, this.maxBearing);
         }
         else if (cursors.left.isDown) {
-            this.bearing -= 0.5;
+            this.bearing = Phaser.Math.Wrap(this.bearing - turnSpeed * Math.PI, this.minBearing, this.maxBearing);
         }
 
         if (cursors.up.isDown) {
-            this.sailHeight -= 0.01;
+            this.sailHeight = Phaser.Math.Clamp(this.sailHeight - sailChangeSpeed, this.minSailHeight, this.maxSailHeight);
         } else if (cursors.down.isDown) {
-            this.sailHeight += 0.01;
+            this.sailHeight = Phaser.Math.Clamp(this.sailHeight + sailChangeSpeed, this.minSailHeight, this.maxSailHeight);
         }
 
-        if (this.bearing > this.maxBearing) { this.bearing = this.minBearing  }
-        if (this.bearing < this.minBearing) { this.bearing = this.maxBearing }
+        this.adjustBoatVisualsToNavigation();
+    }
 
-        if (this.sailHeight >= this.maxSailHeight) { this.sailHeight = this.maxSailHeight; }
-        if (this.sailHeight <= this.minSailHeight) { this.sailHeight = this.minSailHeight; }
-
+    adjustBoatVisualsToNavigation() {
+        // Adjust boat visuals to account for bearing and sail height
         let oneSixteenthBearing = this.maxBearing / 16;
         let oneThirdSailHeight = this.maxSailHeight / 3;
 
@@ -119,10 +90,5 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         let heightId = Math.ceil(this.sailHeight / oneThirdSailHeight);
 
         this.setFrame(SailHeights[heightId] + MapDictionary.DIRECTION_NAMES[directionId] + '.png');
-    }
-
-    // Move the angle so that it represents a point on a circle with angles ranging from -180 through 180.
-    shiftCircle(angle) {
-        return ((angle + 180 + 360) % 360) - 180;
     }
 }
