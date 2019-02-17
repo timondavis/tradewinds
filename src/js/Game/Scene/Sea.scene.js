@@ -77,8 +77,6 @@ export default class SeaScene extends Phaser.Scene {
         WindMachine.instance.unpause();
     }
 
-
-
     createMap() {
         // Paint a repeating water tile across breadth of map
         // @todo set width correctly by reading the map and using math to determine true w * h

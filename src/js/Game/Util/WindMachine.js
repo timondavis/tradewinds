@@ -3,6 +3,10 @@ import SceneDictionary from "./Scene.dictionary";
 
 let instance = null;
 
+let windTimer = null;
+let windDirection = 0;
+let windIntensity = 0;
+
 /**
  * @class
  *
@@ -15,26 +19,23 @@ let instance = null;
 export default class WindMachine {
 
     constructor() {
-        this.windDirection = 0;
-        this.windIntensity = 0;
-        this.initWindVector();
-        this.windTimer = null;
         this.debugScene = null;
     }
 
     static get instance() {
         if (instance === null) {
             instance = new WindMachine();
+            instance.initWindVector();
         }
         return instance;
     }
 
     pause() {
-        clearInterval(this.windTimer);
+        clearInterval(windTimer);
     }
 
     unpause() {
-        this.windTimer = setInterval(this.updateWind, 1000);
+        windTimer = setInterval(this.updateWind, 1000);
     }
 
     /**
@@ -49,13 +50,13 @@ export default class WindMachine {
      * Initialize the values for the direction and intensity of the wind.
      */
     initWindVector() {
-
         // Set direction in radians. -1, 1 rads.
-        this.windDirection = (Math.random() * 2);
+        windDirection = (Math.random() * 2);
 
         // wind factor starts between 0.25 and 0.5.
-        this.windIntensity = (Math.random() * 0.25) + 0.25;
-        this.windTimer = setInterval(this.updateWind, 1000);
+        windIntensity = (Math.random() * 0.25) + 0.25;
+
+        windTimer = setInterval(this.updateWind, 1000);
     }
 
     /**
@@ -65,8 +66,8 @@ export default class WindMachine {
         const windDirectionDelta = (Math.random() * 0.6) - 0.3 ;
         const windIntensityDelta = (Math.random() * 0.2) - 0.1;
 
-        this.windDirection = Phaser.Math.Wrap(this.windDirection + windDirectionDelta, 0.001, 2);
-        this.windIntensity = Phaser.Math.Clamp(this.windIntensity + windIntensityDelta, 0.001, 1);
+        windDirection = Phaser.Math.Wrap(windDirection + windDirectionDelta, 0.001, 2);
+        windIntensity = Phaser.Math.Clamp(windIntensity + windIntensityDelta, 0.001, 1);
     }
 
     /**
@@ -82,11 +83,11 @@ export default class WindMachine {
         let maxWindAngle = (windAngle/2) / Math.PI ;
         let adjustedWindDirection = 0;
 
-        let adjustedBearing = this.shiftCircle(bearing - this.windDirection) / Math.PI;
+        let adjustedBearing = this.shiftCircle(bearing - windDirection) / Math.PI;
 
         if (this.debugScene) {
             this.debugScene.setReadout('WIND CAUGHT', '------------------------');
-            this.debugScene.setReadout('Wind Direction', this.windDirection.toFixed(3));
+            this.debugScene.setReadout('Wind Direction', windDirection.toFixed(3));
             this.debugScene.setReadout('Adjusted Object Bearing', adjustedBearing.toFixed(3));
             this.debugScene.setReadout('Adjusted Wind Direction', adjustedWindDirection.toFixed(3));
             this.debugScene.setReadout('Min Wind Cone', minWindAngle.toFixed(3));
