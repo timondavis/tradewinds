@@ -45,7 +45,7 @@ export default class SeaScene extends Phaser.Scene {
 
     update() {
 
-        this.playerBoat.update(this.cursors, this.windMachine.windVector);
+        this.playerBoat.update(this.cursors, this.windMachine);
 
         if (this.cursors.space.isDown) {
             this.scene.launch(SceneDictionary.PAUSED);
