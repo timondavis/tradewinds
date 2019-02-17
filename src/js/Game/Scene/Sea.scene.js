@@ -26,8 +26,6 @@ export default class SeaScene extends Phaser.Scene {
         this.tileSprite = null;
 
         this.playerBoat = null;
-
-
     }
 
     create() {

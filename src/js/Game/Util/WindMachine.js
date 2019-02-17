@@ -11,7 +11,8 @@ import SceneDictionary from "./Scene.dictionary";
 export default class WindMachine {
 
     constructor(debugScene = null) {
-        this.windVector = new Phaser.Math.Vector2(0, 0);
+        this.windDirection = 0;
+        this.windIntensity = 0;
         this.initWindVector();
         this.windTimer = null;
         this.debug = (debugScene) ? true : false;
@@ -24,17 +25,15 @@ export default class WindMachine {
     initWindVector() {
 
         // Set direction in radians. -1, 1 rads.
-        let windDirection = (Math.random() * 2) - 1;
+        this.windDirection = (Math.random() * 2);
 
         // wind factor starts between 0.25 and 0.5.
-        let windFactor = (Math.random() * 0.25) + 0.25;
-
-        this.windVector = new Phaser.Math.Vector2(windDirection * Math.PI, windFactor);
+        this.windIntensity = (Math.random() * 0.25) + 0.25;
 
         this.windTimer = new Phaser.Time.TimerEvent({
             delay: 1000,
             callback: () => {
-                this.updateWindVector();
+                this.updateWind();
             },
             callbackScope: this,
             repeat: -1,
@@ -44,19 +43,12 @@ export default class WindMachine {
     /**
      * Shift the direction and intensity of the wind.
      */
-    updateWindVector() {
+    updateWind() {
         const windDirectionDelta = (Math.random() * 0.6) -0.3 ;
-        const windFactorDelta = (Math.random() * 0.2) - 0.1;
+        const windIntensityDelta = (Math.random() * 0.2) - 0.1;
 
-        let windDirection = this.windVector.x += windDirectionDelta;
-        if (windDirection > 1) { windDirection = 1; }
-        if (windDirection < -1) { windDirection = -1; }
-
-        let windFactor = this.windVector.y += windFactorDelta;
-        if (windFactor > 1) { windFactor = 1; }
-        if (windFactor < 0) { windFactor = 0; }
-
-        this.windVector = new Phaser.Math.Vector2(windDirection, windFactor);
+        this.windDirection = Phaser.Math.Wrap(this.windDirection + windDirectionDelta, 0.001, 2);
+        this.windIntensity = Phaser.Math.Clamp(this.windIntensity + windIntensityDelta, 0.001, 1);
     }
 
     /**
@@ -66,16 +58,13 @@ export default class WindMachine {
      */
     getWindCatchPercentage(bearing) {
         // Break down wind direction and vector
-        let windVector = this.windVector;
-        let windDirection = Phaser.Math.Wrap(Phaser.Math.RadToDeg(windVector.x), 0, 359);
-        let windFactor = windVector.y;
 
-        let windAngle = 270;
+        let windAngle = 1.5 * Math.PI;
         let minWindAngle = -1 * (windAngle/2);
         let maxWindAngle = windAngle/2;
         let adjustedWindDirection = 0;
 
-        let adjustedBearing = this.shiftCircle(bearing - windDirection);
+        let adjustedBearing = this.shiftCircle(bearing - this.windDirection);
 
         /**
         this.debugScene.bearing.setText( 'Bearing: ' + bearing.toFixed(3));
@@ -86,8 +75,6 @@ export default class WindMachine {
         this.debugScene.maxWindCone.setText( 'Max Wind Cone: ' + maxWindAngle.toFixed(3) );
          */
 
-        // Compare ships heading to the arc of wind power, then account for the config's boat speed and
-        // the height of the sails.
         let windCaughtPercentage = Phaser.Math.Percent(adjustedBearing, minWindAngle, adjustedWindDirection, maxWindAngle);
         /*this.debugScene.windCaughtPct.setText( 'Wind Caught: ' + (windCaughtPercentage * 100).toFixed(2) + '%')*/
 
@@ -100,6 +87,6 @@ export default class WindMachine {
      * @returns {number}
      */
     shiftCircle(angle) {
-        return ((angle + 180 + 360) % 360) - 180;
+        return Phaser.Math.DegToRad(((Phaser.Math.RadToDeg(angle) + 180 + 360) % 360) - 180);
     }
 }
