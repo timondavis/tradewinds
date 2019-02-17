@@ -29,6 +29,8 @@ export default class SeaScene extends Phaser.Scene {
 
         this.debug = this.sys.game.config.physics.arcade.debug;
         this._debugScene = null;
+
+        this.isPauseLocked = false;
     }
 
     create() {
@@ -56,9 +58,23 @@ export default class SeaScene extends Phaser.Scene {
         this.playerBoat.update(this.cursors);
 
         if (this.cursors.space.isDown) {
-            this.scene.launch(SceneDictionary.PAUSED);
-            this.scene.pause();
+            if (!this.isPauseLocked) {
+                this.scene.launch(SceneDictionary.PAUSED);
+                this.pause();
+            }
+        } else {
+           this.isPauseLocked = false;
         }
+    }
+
+    pause() {
+        this.scene.pause();
+        this.isPauseLocked = true;
+        WindMachine.instance.pause();
+    }
+
+    unpause() {
+        WindMachine.instance.unpause();
     }
 
     createMap() {
@@ -89,7 +105,6 @@ export default class SeaScene extends Phaser.Scene {
     }
 
     createPlayer() {
-
         this.map.findObject(MapDictionary.LAYER.PLAYER, (boatStart) => {
             this.playerBoat = new PlayerBoat(this, boatStart.x, boatStart.y);
         })
