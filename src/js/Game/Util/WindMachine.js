@@ -29,6 +29,14 @@ export default class WindMachine {
         return instance;
     }
 
+    pause() {
+        clearInterval(this.windTimer);
+    }
+
+    unpause() {
+        this.windTimer = setInterval(this.updateWind, 1000);
+    }
+
     /**
      * Activate debugging capabilities.  Requires the DebugScene instance to write to.
      * @param debugScene {DebugScene}
@@ -47,15 +55,7 @@ export default class WindMachine {
 
         // wind factor starts between 0.25 and 0.5.
         this.windIntensity = (Math.random() * 0.25) + 0.25;
-
-        this.windTimer = new Phaser.Time.TimerEvent({
-            delay: 1000,
-            callback: () => {
-                this.updateWind();
-            },
-            callbackScope: this,
-            repeat: -1,
-        });
+        this.windTimer = setInterval(this.updateWind, 1000);
     }
 
     /**
