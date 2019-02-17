@@ -2,43 +2,32 @@ export default class DebugScene extends Phaser.Scene {
 
     constructor(config) {
         super(config);
+        this.verticalPadding = 25; // PX spacing between each declared readout
+        this.readouts = {};
+        this.texts = {};
     }
 
-    create() {
-        this.bearing = this.add.text(12, 12, 'Bearing: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        });
+    setReadout(key, value) {
+        this.readouts[key] = value;
+    }
 
-        this.velocity = this.add.text(12, 37, 'Velocity: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        });
+    update() {
 
-        this.windDirection = this.add.text(12, 62, 'Wind Direction: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        });
+        const startingHeight = 12;
+        let currentHeight = startingHeight;
 
-        this.adjustedBearing = this.add.text(12, 87, 'Adjusted Bearing: 0', {
-            fontSize:'32px',
-            fill: '#fff'
+        Object.keys(this.readouts).forEach((key) => {
+
+            if (this.texts.hasOwnProperty(key)) {
+                this.texts[key].setText(key + ': ' + this.readouts[key]);
+            } else {
+                this.texts[key] = this.add.text(12, currentHeight, key + ': ' + this.readouts[key], {
+                    fontSize: '32px',
+                    fill: '#FFF'
+                });
+            }
+
+            currentHeight += this.verticalPadding;
         });
-        this.adjustedWindDirection = this.add.text(12, 112, 'Adjusted Wind Direction: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        });
-        this.minWindCone = this.add.text(12, 137, 'Min Wind Cone: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        });
-        this.maxWindCone = this.add.text(12, 162, 'Max Wind Cone: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        });
-        this.windCaughtPct = this.add.text(12, 187, 'Wind Caught %: 0', {
-            fontSize:'32px',
-            fill: '#fff'
-        })
     }
 }
