@@ -26,24 +26,34 @@ export default class SeaScene extends Phaser.Scene {
         this.tileSprite = null;
 
         this.playerBoat = null;
+
+        this.debug = this.sys.game.config.physics.arcade.debug;
+        this._debugScene = null;
     }
 
     create() {
-        this.windMachine = new WindMachine(this);
 
+        // Setup environmental factors.
+        let windMachine = WindMachine.instance;
+
+        // Setup debugging
+        this.debugScene = null;
+        if (this.debug) {
+            this.scene.launch(SceneDictionary.DEBUG);
+            this.debugScene = this.scene.get(SceneDictionary.DEBUG);
+            windMachine.activateDebug(this.debugScene);
+        }
+
+        // Create game components.
         this.createMap();
-
         this.createPlayer();
         this.createControls();
         this.configureCamera();
-
-
-           this.scene.launch(SceneDictionary.DEBUG);
     }
 
     update() {
 
-        this.playerBoat.update(this.cursors, this.windMachine);
+        this.playerBoat.update(this.cursors);
 
         if (this.cursors.space.isDown) {
             this.scene.launch(SceneDictionary.PAUSED);
@@ -90,9 +100,17 @@ export default class SeaScene extends Phaser.Scene {
     }
 
     configureCamera() {
-
         this.cameras.main.startFollow(this.playerBoat);
         this.cameras.main.zoom = 2;
+    }
+
+    // Things were weird without the getters and setters in place.  Consider review on ticket #9.
+    get debugScene() {
+        return this._debugScene;
+    }
+
+    set debugScene(value) {
+        this._debugScene = value;
     }
 }
 

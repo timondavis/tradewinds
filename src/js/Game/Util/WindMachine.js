@@ -1,8 +1,12 @@
 import 'phaser';
 import SceneDictionary from "./Scene.dictionary";
 
+let instance = null;
+
 /**
  * @class
+ *
+ * Singleton.  Invoke with ::instance() method.
  *
  * The WindMachine generates data about the wind blowing along the surface of the water.
  * It also supplies convenience functions which can be used to simplify interactions of game objects
@@ -10,12 +14,26 @@ import SceneDictionary from "./Scene.dictionary";
  */
 export default class WindMachine {
 
-    constructor(debugScene = null) {
+    constructor() {
         this.windDirection = 0;
         this.windIntensity = 0;
         this.initWindVector();
         this.windTimer = null;
-        this.debug = (debugScene) ? true : false;
+        this.debugScene = null;
+    }
+
+    static get instance() {
+        if (instance === null) {
+            instance = new WindMachine();
+        }
+        return instance;
+    }
+
+    /**
+     * Activate debugging capabilities.  Requires the DebugScene instance to write to.
+     * @param debugScene {DebugScene}
+     */
+    activateDebug(debugScene) {
         this.debugScene = debugScene;
     }
 
@@ -44,7 +62,7 @@ export default class WindMachine {
      * Shift the direction and intensity of the wind.
      */
     updateWind() {
-        const windDirectionDelta = (Math.random() * 0.6) -0.3 ;
+        const windDirectionDelta = (Math.random() * 0.6) - 0.3 ;
         const windIntensityDelta = (Math.random() * 0.2) - 0.1;
 
         this.windDirection = Phaser.Math.Wrap(this.windDirection + windDirectionDelta, 0.001, 2);
@@ -52,33 +70,30 @@ export default class WindMachine {
     }
 
     /**
-     * 360 degree angle bearing of a given game object which interacts with the wind.
+     * Bearing of a given game object which interacts with the wind.
      *
-     * @param number bearing  Between 0 and 360 in a circle, where 0 is true North.
+     * @param bearing number | Between 0 and 2 radians in a circle, where 0 and 2 are true North.
+     * @param debugScene {Phaser.Scene} | If debugScene output is desired, pass in the debugScene.
      */
     getWindCatchPercentage(bearing) {
-        // Break down wind direction and vector
-
+        // Break down wind direction and vector.
         let windAngle = 1.5 * Math.PI;
-        let minWindAngle = -1 * (windAngle/2);
-        let maxWindAngle = windAngle/2;
+        let minWindAngle = (-1 * (windAngle/2)) / Math.PI;
+        let maxWindAngle = (windAngle/2) / Math.PI ;
         let adjustedWindDirection = 0;
 
-        let adjustedBearing = this.shiftCircle(bearing - this.windDirection);
+        let adjustedBearing = this.shiftCircle(bearing - this.windDirection) / Math.PI;
 
-        /**
-        this.debugScene.bearing.setText( 'Bearing: ' + bearing.toFixed(3));
-        this.debugScene.windDirection.setText( 'Wind Direction: ' + windDirection.toFixed(3));
-        this.debugScene.adjustedBearing.setText( 'Adjusted Bearing: ' + adjustedBearing.toFixed(3));
-        this.debugScene.adjustedWindDirection.setText( 'Adjusted Wind Direction: ' + adjustedWindDirection.toFixed(3));
-        this.debugScene.minWindCone.setText( 'Min Wind Cone: ' + minWindAngle.toFixed(3) );
-        this.debugScene.maxWindCone.setText( 'Max Wind Cone: ' + maxWindAngle.toFixed(3) );
-         */
+        if (this.debugScene) {
+            this.debugScene.setReadout('WIND CAUGHT', '------------------------');
+            this.debugScene.setReadout('Wind Direction', this.windDirection.toFixed(3));
+            this.debugScene.setReadout('Adjusted Object Bearing', adjustedBearing.toFixed(3));
+            this.debugScene.setReadout('Adjusted Wind Direction', adjustedWindDirection.toFixed(3));
+            this.debugScene.setReadout('Min Wind Cone', minWindAngle.toFixed(3));
+            this.debugScene.setReadout('Max Wind Cone', maxWindAngle.toFixed(3));
+        }
 
-        let windCaughtPercentage = Phaser.Math.Percent(adjustedBearing, minWindAngle, adjustedWindDirection, maxWindAngle);
-        /*this.debugScene.windCaughtPct.setText( 'Wind Caught: ' + (windCaughtPercentage * 100).toFixed(2) + '%')*/
-
-        return windCaughtPercentage;
+        return Phaser.Math.Percent(adjustedBearing, minWindAngle, adjustedWindDirection, maxWindAngle);
     }
 
     /**

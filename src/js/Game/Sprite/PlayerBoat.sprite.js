@@ -1,7 +1,7 @@
 import 'phaser';
 import AssetDictionary from '../Util/Asset.dictionary';
 import MapDictionary from '../Util/Map.dictionary';
-import SceneDictionary from '../Util/Scene.dictionary';
+import WindMachine from '../Util/WindMachine';
 
 const SailHeights = {
     1 : AssetDictionary.ATLAS.SLOOP.RAISED_SAIL,
@@ -23,22 +23,19 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.sailHeight = 1;
         this.maxSailHeight = 1;
         this.minSailHeight = 0.01;
-
-        this.debug = this.scene.sys.game.config.debug;
     }
 
-    update(cursors, windMachine) {
+    update(cursors) {
 
         this.handleNavigation(cursors);
-        this.handleWind(windMachine);
+        this.handleWind();
     }
 
-    handleWind(windMachine) {
+    handleWind() {
 
-        let windCaughtPercentage = windMachine.getWindCatchPercentage(this.bearing);
+        let windCaughtPercentage = WindMachine.instance.getWindCatchPercentage(this.bearing);
 
         windCaughtPercentage *= this.sailHeight;
-        //console.log(windCaughtPercentage);
         const boatSpeed = 75; //this.scene.sys.game.config.boatSpeed;
 
         let magnitude = 0;
@@ -57,7 +54,12 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.body.setVelocityX(bodyVelocityX);
         this.body.setVelocityY(bodyVelocityY);
 
-        /*debugScene.velocity.setText( 'Velocity: ' + ((this.body.velocity.x + this.body.velocity.y) / 2).toFixed());*/
+        if (this.scene.debug) {
+            this.scene.debugScene.setReadout('BOAT', '-------------------------');
+            this.scene.debugScene.setReadout('Bearing', (this.bearing / Math.PI).toFixed(3));
+            this.scene.debugScene.setReadout('Wind Caught', (windCaughtPercentage * 100).toFixed(2) + '%');
+            this.scene.debugScene.setReadout('Speed (avg)', ((this.body.velocity.x + this.body.velocity.y)/2).toFixed(3));
+        }
     }
 
     handleNavigation(cursors) {
