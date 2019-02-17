@@ -56,7 +56,7 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
 
         if (this.scene.debug) {
             this.scene.debugScene.setReadout('BOAT', '-------------------------');
-            this.scene.debugScene.setReadout('Bearing', (this.bearing / Math.PI).toFixed(3));
+            this.scene.debugScene.setReadoutInPiRadians('Bearing', this.bearing);
             this.scene.debugScene.setReadout('Wind Caught', (windCaughtPercentage * 100).toFixed(2) + '%');
             this.scene.debugScene.setReadout('Speed (avg)', ((this.body.velocity.x + this.body.velocity.y)/2).toFixed(3));
         }
@@ -68,10 +68,10 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         let sailChangeSpeed = 0.01;
 
         if (cursors.right.isDown) {
-            this.bearing = Phaser.Math.Wrap(this.bearing + turnSpeed * Math.PI, this.minBearing, this.maxBearing);
+            this.bearing = Phaser.Math.Wrap(this.bearing + (turnSpeed * Math.PI), this.minBearing, this.maxBearing);
         }
         else if (cursors.left.isDown) {
-            this.bearing = Phaser.Math.Wrap(this.bearing - turnSpeed * Math.PI, this.minBearing, this.maxBearing);
+            this.bearing = Phaser.Math.Wrap(this.bearing - (turnSpeed * Math.PI), this.minBearing, this.maxBearing);
         }
 
         if (cursors.up.isDown) {

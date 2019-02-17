@@ -7,8 +7,29 @@ export default class DebugScene extends Phaser.Scene {
         this.texts = {};
     }
 
+    get ReadoutModes() {
+        return {
+            TEXT: 'text',
+            PI_RADIANS: 'pi_radians'
+        };
+    }
+
     setReadout(key, value) {
-        this.readouts[key] = value;
+        if (!this.readouts.hasOwnProperty(key)) {
+            this.readouts[key] = new Report();
+        }
+
+        this.readouts[key].mode = 'text';
+        this.readouts[key].value = value;
+    }
+
+    setReadoutInPiRadians(key, value) {
+        if (!this.readouts.hasOwnProperty(key)) {
+            this.readouts[key] = new Report();
+        }
+
+        this.readouts[key].value = value;
+        this.readouts[key].mode = this.ReadoutModes.PI_RADIANS;
     }
 
     update() {
@@ -18,10 +39,25 @@ export default class DebugScene extends Phaser.Scene {
 
         Object.keys(this.readouts).forEach((key) => {
 
+            let readout = this.readouts[key];
+            let value = readout.value;
+            const mode = readout.mode;
+
+            switch (mode) {
+
+                case(this.ReadoutModes.PI_RADIANS): {
+                    value = (value / Math.PI).toFixed(3 ) + ' Pi';
+                    break;
+                }
+
+                case(this.ReadoutModes.TEXT):
+                default: { break; }
+            }
+
             if (this.texts.hasOwnProperty(key)) {
-                this.texts[key].setText(key + ': ' + this.readouts[key]);
+                this.texts[key].setText(key + ': ' + value);
             } else {
-                this.texts[key] = this.add.text(12, currentHeight, key + ': ' + this.readouts[key], {
+                this.texts[key] = this.add.text(12, currentHeight, key + ': ' + value, {
                     fontSize: '32px',
                     fill: '#FFF'
                 });
@@ -29,5 +65,13 @@ export default class DebugScene extends Phaser.Scene {
 
             currentHeight += this.verticalPadding;
         });
+    }
+}
+
+class Report {
+
+    constructor() {
+        this.value = null;
+        this.mode = null;
     }
 }

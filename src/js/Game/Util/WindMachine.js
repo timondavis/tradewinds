@@ -51,7 +51,7 @@ export default class WindMachine {
      */
     initWindVector() {
         // Set direction in radians. -1, 1 rads.
-        windDirection = (Math.random() * 2);
+        windDirection = (Math.random() * 2 * Math.PI);
 
         // wind factor starts between 0.25 and 0.5.
         windIntensity = (Math.random() * 0.25) + 0.25;
@@ -63,10 +63,10 @@ export default class WindMachine {
      * Shift the direction and intensity of the wind.
      */
     updateWind() {
-        const windDirectionDelta = (Math.random() * 0.6) - 0.3 ;
+        const windDirectionDelta = (Math.random() * 0.6 * Math.PI) - 0.3 * Math.PI;
         const windIntensityDelta = (Math.random() * 0.2) - 0.1;
 
-        windDirection = Phaser.Math.Wrap(windDirection + windDirectionDelta, 0.001, 2);
+        windDirection = Phaser.Math.Wrap(windDirection + windDirectionDelta, 0.001, 2 * Math.PI);
         windIntensity = Phaser.Math.Clamp(windIntensity + windIntensityDelta, 0.001, 1);
     }
 
@@ -79,19 +79,20 @@ export default class WindMachine {
     getWindCatchPercentage(bearing) {
         // Break down wind direction and vector.
         let windAngle = 1.5 * Math.PI;
-        let minWindAngle = (-1 * (windAngle/2)) / Math.PI;
-        let maxWindAngle = (windAngle/2) / Math.PI ;
+        let minWindAngle = (-1 * (windAngle/2));
+        let maxWindAngle = (windAngle/2);
         let adjustedWindDirection = 0;
 
-        let adjustedBearing = this.shiftCircle(bearing - windDirection) / Math.PI;
+        let adjustedBearing = this.shiftCircle(bearing - windDirection);
 
         if (this.debugScene) {
+            // Send out all numbers as pi radians
             this.debugScene.setReadout('WIND CAUGHT', '------------------------');
-            this.debugScene.setReadout('Wind Direction', windDirection.toFixed(3));
-            this.debugScene.setReadout('Adjusted Object Bearing', adjustedBearing.toFixed(3));
-            this.debugScene.setReadout('Adjusted Wind Direction', adjustedWindDirection.toFixed(3));
-            this.debugScene.setReadout('Min Wind Cone', minWindAngle.toFixed(3));
-            this.debugScene.setReadout('Max Wind Cone', maxWindAngle.toFixed(3));
+            this.debugScene.setReadoutInPiRadians('Wind Direction', windDirection);
+            this.debugScene.setReadoutInPiRadians('Adjusted Object Bearing', adjustedBearing);
+            this.debugScene.setReadoutInPiRadians('Adjusted Wind Direction', adjustedWindDirection);
+            this.debugScene.setReadoutInPiRadians('Min Wind Cone', minWindAngle);
+            this.debugScene.setReadoutInPiRadians('Max Wind Cone', maxWindAngle);
         }
 
         return Phaser.Math.Percent(adjustedBearing, minWindAngle, adjustedWindDirection, maxWindAngle);
