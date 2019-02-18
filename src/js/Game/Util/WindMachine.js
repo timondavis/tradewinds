@@ -1,11 +1,12 @@
 import 'phaser';
 import SceneDictionary from "./Scene.dictionary";
+import Config from '../Config';
 
 let instance = null;
 
 let windTimer = null;
-let windDirection = 0;
-let windIntensity = 0;
+let windDirection = null;
+let windIntensity = null;
 
 /**
  * @class
@@ -20,6 +21,9 @@ export default class WindMachine {
 
     constructor() {
         this.debugScene = null;
+
+        windDirection = 0;
+        windIntensity = 0;
     }
 
     static get instance() {
@@ -35,7 +39,7 @@ export default class WindMachine {
     }
 
     unpause() {
-        windTimer = setInterval(this.updateWind, 1000);
+        windTimer = setInterval(this.updateWind, Config.wind.msBetweenWindUpdate);
     }
 
     /**
@@ -51,23 +55,24 @@ export default class WindMachine {
      */
     initWindVector() {
         // Set direction in radians. -1, 1 rads.
-        windDirection = (Math.random() * 2 * Math.PI);
+        windDirection = (Math.random() * Config.geom.arcMax * Math.PI);
 
         // wind factor starts between 0.25 and 0.5.
-        windIntensity = (Math.random() * 0.25) + 0.25;
+        windIntensity = (Math.random() * Config.wind.defaultIntensityRange / 2) + Config.wind.defaultIntensityRange / 2;
 
-        windTimer = setInterval(this.updateWind, 1000);
+        windTimer = setInterval(this.updateWind, Config.wind.msBetweenWindUpdate);
     }
 
     /**
      * Shift the direction and intensity of the wind.
      */
     updateWind() {
-        const windDirectionDelta = (Math.random() * 0.6 * Math.PI) - 0.3 * Math.PI;
-        const windIntensityDelta = (Math.random() * 0.2) - 0.1;
+        const windDirectionDelta =
+            (Math.random() * Config.wind.angleDeltaMax * 2 * Math.PI) - Config.wind.angleDeltaMax * Math.PI;
+        const windIntensityDelta = (Math.random() * Config.wind.intensityDeltaMax * 2) - Config.wind.intensityDeltaMax;
 
-        windDirection = Phaser.Math.Wrap(windDirection + windDirectionDelta, 0.001, 2 * Math.PI);
-        windIntensity = Phaser.Math.Clamp(windIntensity + windIntensityDelta, 0.001, 1);
+        windDirection = Phaser.Math.Wrap(windDirection + windDirectionDelta, Config.geom.arcMin, Config.geom.arcMax * Math.PI);
+        windIntensity = Phaser.Math.Clamp(windIntensity + windIntensityDelta, Config.wind.intensityMin, Config.wind.intensityMax);
     }
 
     /**
@@ -78,10 +83,10 @@ export default class WindMachine {
      */
     getWindCatchPercentage(bearing) {
         // Break down wind direction and vector.
-        let windAngle = 1.5 * Math.PI;
+        let windAngle = Config.wind.arcOfInfluence * Math.PI;
         let minWindAngle = (-1 * (windAngle/2));
         let maxWindAngle = (windAngle/2);
-        let adjustedWindDirection = 0;
+        let adjustedWindDirection = Config.wind.windDirectionZero;
 
         let adjustedBearing = this.shiftCircle(bearing - windDirection);
 
