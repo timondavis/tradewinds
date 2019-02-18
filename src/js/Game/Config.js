@@ -61,6 +61,12 @@ export default {
         turnSpeed: 0.0025, // arc delta in radians, no need to convert
         sailChangeSpeed: 0.01,
         speed: 75
+    },
+
+    debugOptions: {
+        messageVerticalPadding: 25,
+        messageFontSize: "32 px",
+        messageFillColor: "#fff"
     }
 
 }
