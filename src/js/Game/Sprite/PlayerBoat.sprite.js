@@ -23,6 +23,8 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.sailHeight = 1;
         this.maxSailHeight = 1;
         this.minSailHeight = 0.01;
+
+        this.body.setCollideWorldBounds(true);
     }
 
     update(cursors) {
