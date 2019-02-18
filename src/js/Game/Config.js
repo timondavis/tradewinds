@@ -12,7 +12,6 @@ export default {
             debug: true
         },
     },
-    boatSpeed : 1,
     scaleX: 2,
     scaleY: 1,
     wind: {
@@ -42,6 +41,26 @@ export default {
         // Arc measurements must be multiplied by PI in program
         arcMin: 0.001,  // Smallest possible angle on the unit circle
         arcMax: 2,      // Greatest possible angle on the unit circle
+    },
+
+    boat: {
+        sailHeightMin: 0.001,
+        sailHeightMax: 1,
+
+        // If wind % effectiveness is below this rate, boat may be moved at impulse power regardless of wind speed.
+        impulseWindEffectivenessThreshold: 0.05,
+
+        // The min height for the sail if the boat is to get impulse power.
+        sailHeightMinForImpulsePower: 0.002,
+
+        // The wind effectiveness delivered by impulse power.
+        impulseWindEffectiveness: 0.05,
+
+        // Speeds
+        stopSpeed: 0,
+        turnSpeed: 0.0025, // arc delta in radians, no need to convert
+        sailChangeSpeed: 0.01,
+        speed: 75
     }
 
 }
