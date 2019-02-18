@@ -9,11 +9,12 @@ export default {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: true
+            debug: false
         },
     },
     scaleX: 2,
     scaleY: 1,
+    cameraZoom: 2,
     wind: {
         msBetweenWindUpdate: 2500,
 
@@ -65,13 +66,18 @@ export default {
 
     debugOptions: {
         messageVerticalPadding: 25,
-        messageFontSize: "32 px",
+        messageLeftPadding: 12,
+        messageTopPadding: 12,
+        messageFontSize: "32px",
         messageFillColor: "#fff"
     },
 
     tileMap: {
         defaultTileWidth: 32,
-        defaultTileHeight: 32
+        defaultTileHeight: 32,
+        defaultBackgroundTileFrame: 1,
+        defaultTopLeft: { x: 0, y: 0 },
+        mapPadding: 250
     }
 
 }

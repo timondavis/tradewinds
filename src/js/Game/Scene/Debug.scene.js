@@ -36,7 +36,7 @@ export default class DebugScene extends Phaser.Scene {
 
     update() {
 
-        const startingHeight = 12;
+        const startingHeight = Config.debugOptions.messageTopPadding;
         let currentHeight = startingHeight;
 
         Object.keys(this.readouts).forEach((key) => {
@@ -59,7 +59,7 @@ export default class DebugScene extends Phaser.Scene {
             if (this.texts.hasOwnProperty(key)) {
                 this.texts[key].setText(key + ': ' + value);
             } else {
-                this.texts[key] = this.add.text(12, currentHeight, key + ': ' + value, {
+                this.texts[key] = this.add.text(Config.debugOptions.messageLeftPadding, currentHeight, key + ': ' + value, {
                     fontSize: Config.debugOptions.messageFontSize,
                     fill: Config.debugOptions.messageFillColor
                 });
