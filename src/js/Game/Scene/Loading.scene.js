@@ -1,4 +1,5 @@
 import 'phaser';
+import Config from '../Config';
 
 import AssetDictionary from '../Util/Asset.dictionary';
 import AnimationDictionary from '../Util/Animation.dictionary';
@@ -36,7 +37,7 @@ module.exports =
                 AssetDictionary.generateAssetPath(
                     AssetDictionary.PATH.IMAGE,
                     AssetDictionary.SPRITESHEET.ISLAND_TILES),
-                {frameWidth: 32, frameHeight: 32}
+                {frameWidth: Config.tileMap.defaultTileWidth, frameHeight: Config.tileMap.defaultTileHeight}
             );
         }
 

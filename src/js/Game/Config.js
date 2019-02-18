@@ -67,6 +67,11 @@ export default {
         messageVerticalPadding: 25,
         messageFontSize: "32 px",
         messageFillColor: "#fff"
+    },
+
+    tileMap: {
+        defaultTileWidth: 32,
+        defaultTileHeight: 32
     }
 
 }
