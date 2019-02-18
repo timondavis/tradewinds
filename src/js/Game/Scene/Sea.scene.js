@@ -8,6 +8,8 @@ import PlayerBoat from '../Sprite/PlayerBoat.sprite';
 
 import WindMachine from '../Util/WindMachine';
 
+import Config from '../Config';
+
 export default class SeaScene extends Phaser.Scene {
 
     init(data) {
@@ -89,25 +91,30 @@ export default class SeaScene extends Phaser.Scene {
         this.tileSprite = this.add.tileSprite(
             this.map.widthInPixels / 2,
             this.map.heightInPixels / 2,
-            this.map.widthInPixels + 500,
-            this.map.heightInPixels + 500,
-            MapDictionary.TILESET.ISLAND, 1);
+            this.map.widthInPixels + Config.tileMap.mapPadding * 2,
+            this.map.heightInPixels + Config.tileMap.mapPadding * 2,
+            MapDictionary.TILESET.ISLAND, Config.tileMap.defaultBackgroundTileFrame);
+
         this.tileSprite.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Add the tileset for the scene
         this.tiles = this.map.addTilesetImage(MapDictionary.TILESET.ISLAND);
 
         // Read map's tile layers and apply to the level map.
-        this.landLayer = this.map.createStaticLayer(MapDictionary.LAYER.LAND, this.tiles, 0, 0);
+        this.landLayer = this.map.createStaticLayer(MapDictionary.LAYER.LAND, this.tiles,
+            Config.tileMap.defaultTopLeft.x, Config.tileMap.defaultTopLeft.y);
         this.landLayer.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
-        this.blockedLayer = this.map.createStaticLayer(MapDictionary.LAYER.BLOCKED, this.tiles, 0, 0);
+
+        this.blockedLayer = this.map.createStaticLayer(MapDictionary.LAYER.BLOCKED, this.tiles,
+            Config.tileMap.defaultTopLeft.x, Config.tileMap.defaultTopLeft.y);
         this.blockedLayer.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Set Collidable tiles.  Land tiles will not be collidable unless steering a boat.
         this.landLayer.setCollisionByExclusion([-1]);
         this.blockedLayer.setCollisionByExclusion([-1]);
 
-        this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels, true, true, true, true);
+        this.physics.world.setBounds(Config.tileMap.defaultTopLeft.x, Config.tileMap.defaultTopLeft.y,
+            this.map.widthInPixels, this.map.heightInPixels, true, true, true, true);
     }
 
     createPlayer() {
@@ -126,7 +133,7 @@ export default class SeaScene extends Phaser.Scene {
 
     configureCamera() {
         this.cameras.main.startFollow(this.playerBoat);
-        this.cameras.main.zoom = 2;
+        this.cameras.main.zoom = Config.cameraZoom;
     }
 
     // Things were weird without the getters and setters in place.  Consider review on ticket #9.

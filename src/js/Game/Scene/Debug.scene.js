@@ -1,8 +1,10 @@
+import Config from '../Config';
+
 export default class DebugScene extends Phaser.Scene {
 
     constructor(config) {
         super(config);
-        this.verticalPadding = 25; // PX spacing between each declared readout
+        this.verticalPadding = Config.debugOptions.messageVerticalPadding; // PX spacing between each declared readout
         this.readouts = {};
         this.texts = {};
     }
@@ -19,7 +21,7 @@ export default class DebugScene extends Phaser.Scene {
             this.readouts[key] = new Report();
         }
 
-        this.readouts[key].mode = 'text';
+        this.readouts[key].mode = this.ReadoutModes.TEXT;
         this.readouts[key].value = value;
     }
 
@@ -34,7 +36,7 @@ export default class DebugScene extends Phaser.Scene {
 
     update() {
 
-        const startingHeight = 12;
+        const startingHeight = Config.debugOptions.messageTopPadding;
         let currentHeight = startingHeight;
 
         Object.keys(this.readouts).forEach((key) => {
@@ -57,9 +59,9 @@ export default class DebugScene extends Phaser.Scene {
             if (this.texts.hasOwnProperty(key)) {
                 this.texts[key].setText(key + ': ' + value);
             } else {
-                this.texts[key] = this.add.text(12, currentHeight, key + ': ' + value, {
-                    fontSize: '32px',
-                    fill: '#FFF'
+                this.texts[key] = this.add.text(Config.debugOptions.messageLeftPadding, currentHeight, key + ': ' + value, {
+                    fontSize: Config.debugOptions.messageFontSize,
+                    fill: Config.debugOptions.messageFillColor
                 });
             }
 

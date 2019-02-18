@@ -2,6 +2,7 @@ import 'phaser';
 import AssetDictionary from '../Util/Asset.dictionary';
 import MapDictionary from '../Util/Map.dictionary';
 import WindMachine from '../Util/WindMachine';
+import Config from '../Config';
 
 const SailHeights = {
     1 : AssetDictionary.ATLAS.SLOOP.RAISED_SAIL,
@@ -17,12 +18,12 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.scene.physics.world.enable(this);
         this.scene.add.existing(this);
 
-        this.bearing = 0.001 * Math.PI;
-        this.maxBearing = 2 * Math.PI;
-        this.minBearing = 0.001;
-        this.sailHeight = 1;
-        this.maxSailHeight = 1;
-        this.minSailHeight = 0.01;
+        this.bearing = Config.geom.arcMin;
+        this.maxBearing = Config.geom.arcMax * Math.PI;
+        this.minBearing = Config.geom.arcMin;
+        this.sailHeight = Config.boat.sailHeightMax;
+        this.maxSailHeight = Config.boat.sailHeightMax;
+        this.minSailHeight = Config.boat.sailHeightMin;
 
         this.body.setCollideWorldBounds(true);
     }
@@ -38,14 +39,15 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         let windCaughtPercentage = WindMachine.instance.getWindCatchPercentage(this.bearing);
 
         windCaughtPercentage *= this.sailHeight;
-        const boatSpeed = 75; //this.scene.sys.game.config.boatSpeed;
+        const boatSpeed = Config.boat.speed;
 
         let magnitude = 0;
-        if (windCaughtPercentage < 0.05 && this.sailHeight > 0.1) {
-            windCaughtPercentage = 0.05;
+        if (windCaughtPercentage < Config.boat.impulseWindEffectivenessThreshold &&
+            this.sailHeight > Config.boat.sailHeightMinForImpulsePower) {
+                windCaughtPercentage = Config.boat.impulseWindEffectiveness;
         }
-        if (this.sailHeight === this.minSailHeight) {
-            magnitude = 0;
+        if (this.sailHeight < Config.boat.sailHeightMinForImpulsePower) {
+            magnitude = Config.boat.stopSpeed;
         } else {
             magnitude = windCaughtPercentage * boatSpeed;
         }
@@ -66,8 +68,8 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
 
     handleNavigation(cursors) {
 
-        let turnSpeed = 0.0025;
-        let sailChangeSpeed = 0.01;
+        let turnSpeed = Config.boat.turnSpeed;
+        let sailChangeSpeed = Config.boat.sailChangeSpeed;
 
         if (cursors.right.isDown) {
             this.bearing = Phaser.Math.Wrap(this.bearing + (turnSpeed * Math.PI), this.minBearing, this.maxBearing);
