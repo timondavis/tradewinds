@@ -49,6 +49,7 @@ export default class SeaScene extends Phaser.Scene {
         // Create game components.
         this.createMap();
         this.createPlayer();
+        this.createCollisions();
         this.createControls();
         this.configureCamera();
     }
@@ -79,7 +80,6 @@ export default class SeaScene extends Phaser.Scene {
 
     createMap() {
         // Paint a repeating water tile across breadth of map
-        // @todo set width correctly by reading the map and using math to determine true w * h
         this.tileSprite = this.add.tileSprite(0, 0, 8192, 8192, MapDictionary.TILESET.ISLAND, 1);
         this.tileSprite.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
@@ -98,9 +98,7 @@ export default class SeaScene extends Phaser.Scene {
         this.blockedLayer.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Set Collidable tiles.  Land tiles will not be collidable unless steering a boat.
-        if (this._PLAYMODE === PlayModeDictionary.BOAT) {
-            this.landLayer.setCollisionByExclusion([-1]);
-        }
+        this.landLayer.setCollisionByExclusion([-1]);
         this.blockedLayer.setCollisionByExclusion([-1]);
     }
 
@@ -108,6 +106,10 @@ export default class SeaScene extends Phaser.Scene {
         this.map.findObject(MapDictionary.LAYER.PLAYER, (boatStart) => {
             this.playerBoat = new PlayerBoat(this, boatStart.x, boatStart.y);
         })
+    }
+
+    createCollisions() {
+        this.physics.add.collider(this.playerBoat, [this.landLayer]);
     }
 
     createControls() {
