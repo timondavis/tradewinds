@@ -79,14 +79,20 @@ export default class SeaScene extends Phaser.Scene {
     }
 
     createMap() {
-        // Paint a repeating water tile across breadth of map
-        this.tileSprite = this.add.tileSprite(0, 0, 8192, 8192, MapDictionary.TILESET.ISLAND, 1);
-        this.tileSprite.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Read in the tilemap (.json sourced) to the map for the level.
         this.map = this.make.tilemap({
             key: this._LEVELS[this._LEVEL]
         });
+
+        // Paint a repeating water tile across breadth of map
+        this.tileSprite = this.add.tileSprite(
+            this.map.widthInPixels / 2,
+            this.map.heightInPixels / 2,
+            this.map.widthInPixels + 500,
+            this.map.heightInPixels + 500,
+            MapDictionary.TILESET.ISLAND, 1);
+        this.tileSprite.setScale(this.sys.game.config.scaleX, this.sys.game.config.scaleY);
 
         // Add the tileset for the scene
         this.tiles = this.map.addTilesetImage(MapDictionary.TILESET.ISLAND);
@@ -100,6 +106,8 @@ export default class SeaScene extends Phaser.Scene {
         // Set Collidable tiles.  Land tiles will not be collidable unless steering a boat.
         this.landLayer.setCollisionByExclusion([-1]);
         this.blockedLayer.setCollisionByExclusion([-1]);
+
+        this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels, true, true, true, true);
     }
 
     createPlayer() {
