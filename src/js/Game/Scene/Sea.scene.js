@@ -132,6 +132,19 @@ export default class SeaScene extends Phaser.Scene {
         // Add the tileset for the scene
         this.tiles = this.map.addTilesetImage(MapDictionary.TILESET.ISLAND);
 
+        // Create and configure map layers.
+        this.createMapLayers();
+
+        // Set the world boundaries based on the level data passed in.
+        this.physics.world.setBounds(Config.tileMap.defaultTopLeft.x, Config.tileMap.defaultTopLeft.y,
+            this.map.widthInPixels, this.map.heightInPixels, true, true, true, true);
+    }
+
+    /**
+     * Creates and configures map layers.
+     */
+    createMapLayers() {
+
         // Read map's tile layers and apply to the level map.  Adjust as needed.
         this.landLayer = this.map.createStaticLayer(MapDictionary.LAYER.LAND, this.tiles,
             Config.tileMap.defaultTopLeft.x, Config.tileMap.defaultTopLeft.y);
@@ -145,9 +158,6 @@ export default class SeaScene extends Phaser.Scene {
         this.landLayer.setCollisionByExclusion([-1]);
         this.blockedLayer.setCollisionByExclusion([-1]);
 
-        // Set the world boundaries based on the level data passed in.
-        this.physics.world.setBounds(Config.tileMap.defaultTopLeft.x, Config.tileMap.defaultTopLeft.y,
-            this.map.widthInPixels, this.map.heightInPixels, true, true, true, true);
     }
 
     /**
