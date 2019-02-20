@@ -66,7 +66,7 @@ export default class DebugScene extends Phaser.Scene {
     update() {
 
         // Distance the top of the list is from the top of the screen.
-        let currentHeight = startingHeight;
+        let currentHeight = this.startingHeight;
 
         // For each readout, configure the readout value and then print to screen.
         Object.keys(this.readouts).forEach((key) => {
