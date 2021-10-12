@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+
+  app:
+    build: .
+    restart: always
+    volumes:
+      - ./:/usr/games/tradewinds
+    ports:
+      - "3030:80"
