@@ -71,7 +71,10 @@ export default class WindMachine {
             (Math.random() * Config.wind.angleDeltaMax * 2 * Math.PI) - Config.wind.angleDeltaMax * Math.PI;
         const windIntensityDelta = (Math.random() * Config.wind.intensityDeltaMax * 2) - Config.wind.intensityDeltaMax;
 
+        // Wind direction must always be between bounds.
         windDirection = Phaser.Math.Wrap(windDirection + windDirectionDelta, Config.geom.arcMin, Config.geom.arcMax * Math.PI);
+
+        // Wind intensity ranges from 0 - 1 and never exceeds the boundary in either direction.
         windIntensity = Phaser.Math.Clamp(windIntensity + windIntensityDelta, Config.wind.intensityMin, Config.wind.intensityMax);
     }
 
