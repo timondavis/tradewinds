@@ -1,5 +1,11 @@
 import SceneDictionary from '../Util/Scene.dictionary';
-export default class LoadingScene extends Phaser.Scene {
+
+/**
+ * @class
+ *
+ * Temporary scene use to implement the 'pause' screen, and implement pause screen features/feedback.
+ */
+export default class PauseScene extends Phaser.Scene {
 
     constructor(config) {
         super(config);
