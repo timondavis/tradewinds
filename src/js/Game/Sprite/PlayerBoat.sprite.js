@@ -19,7 +19,7 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
 
     constructor(scene, x, y) {
         // Satisfy requirements for sprite and body being added to scene.
-        super(scene, x, y, AssetDictionary.ATLAS_NAME.SPRITE_ATLAS,
+        super(scene, x, y, AssetDictionary.ATLAS_NAME.BOAT_ATLAS,
             AssetDictionary.ATLAS.SLOOP.FULL_SAIL + MapDictionary.DIRECTION_NAMES[1] + '.png');
         this.scene = scene;
         this.scene.physics.world.enable(this);
@@ -32,6 +32,7 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.sailHeight = Config.boat.sailHeightMax;
         this.maxSailHeight = Config.boat.sailHeightMax;
         this.minSailHeight = Config.boat.sailHeightMin;
+        this.isActive = true;
 
         // Force the boat to respect the boundaries of the level.
         this.body.setCollideWorldBounds(true);
@@ -43,6 +44,8 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
      * @param cursors  {object}
      */
     update(cursors) {
+
+        if ( !this.isActive) return;
 
         // Process player inputs
         this.handleNavigation(cursors);

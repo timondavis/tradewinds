@@ -1,4 +1,5 @@
 import SceneDictionary from '../Util/Scene.dictionary';
+import TopDownHeroSprite from "../Sprite/TopDownHero.sprite";
 
 /**
  * @class
@@ -17,6 +18,7 @@ export default class PauseScene extends Phaser.Scene {
 
     create() {
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.test = new TopDownHeroSprite( this, 10, 10 );
     }
 
     update() {
@@ -25,6 +27,8 @@ export default class PauseScene extends Phaser.Scene {
             this.scene.get(SceneDictionary.SEA).unpause();
             this.lockPauseKey = true;
             this.scene.stop();
+            this.test.x = this.cameras.main.x;
+            this.test.y = this.cameras.main.y;
         }
 
         if (!this.cursors.space.isDown) {

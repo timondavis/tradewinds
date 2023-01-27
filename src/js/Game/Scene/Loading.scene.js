@@ -21,8 +21,12 @@ export default class LoadingScene extends Phaser.Scene {
 
     preload() {
         // Multi-atlas image collections are paired with JSON file to define textures and framenames en masse.
+        this.load.multiatlas(AssetDictionary.ATLAS_NAME.BOAT_ATLAS,
+            AssetDictionary.PATH.ATLAS + AssetDictionary.ATLAS_NAME.BOAT_ATLAS + '.json',
+            AssetDictionary.PATH.ATLAS);
+
         this.load.multiatlas(AssetDictionary.ATLAS_NAME.SPRITE_ATLAS,
-            AssetDictionary.PATH.ATLAS + AssetDictionary.ATLAS_NAME.SPRITE_ATLAS + '.json',
+            AssetDictionary.PATH.ATLAS + AssetDictionary.ATLAS_NAME.SPRITE_ATLAS + '.json' ,
             AssetDictionary.PATH.ATLAS);
 
         // TILED tilemaps include a tile definition image file, as well as a json file describing how those tiles
@@ -42,6 +46,7 @@ export default class LoadingScene extends Phaser.Scene {
                 AssetDictionary.SPRITESHEET.ISLAND_TILES),
             {frameWidth: Config.tileMap.defaultTileWidth, frameHeight: Config.tileMap.defaultTileHeight}
         );
+
     }
 
     create() {
