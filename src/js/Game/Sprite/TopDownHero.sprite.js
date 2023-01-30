@@ -8,6 +8,7 @@ export default class TopDownHeroSprite extends Phaser.GameObjects.Sprite {
             AssetDictionary.ATLAS_NAME.SPRITE_ATLAS,
             AssetDictionary.ATLAS.TOP_DOWN_HERO );
         this.scene = scene;
+        this.scene.physics.world.enable(this);
         this.scene.add.existing( this );
     }
 }

@@ -9,7 +9,7 @@ export default {
         default: 'arcade',
         arcade: {
             gravity: { y: 0 },
-            debug: true
+            debug: false
         },
     },
     scaleX: 2,
@@ -78,6 +78,11 @@ export default {
         defaultBackgroundTileFrame: 1,
         defaultTopLeft: { x: 0, y: 0 },
         mapPadding: 250
+    },
+
+    player: {
+        width: 32,
+        height: 32
     }
 
 }

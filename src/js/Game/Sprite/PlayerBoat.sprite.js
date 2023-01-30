@@ -32,7 +32,6 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         this.sailHeight = Config.boat.sailHeightMax;
         this.maxSailHeight = Config.boat.sailHeightMax;
         this.minSailHeight = Config.boat.sailHeightMin;
-        this.isActive = true;
 
         // Force the boat to respect the boundaries of the level.
         this.body.setCollideWorldBounds(true);
@@ -157,5 +156,10 @@ export default class PlayerBoat extends Phaser.GameObjects.Sprite {
         let heightId = Math.ceil(this.sailHeight / oneThirdSailHeight);
 
         this.setFrame(SailHeights[heightId] + MapDictionary.DIRECTION_NAMES[directionId] + '.png');
+    }
+
+    stop() {
+        this.body.velocity.x = 0;
+        this.body.velocity.y = 0;
     }
 }

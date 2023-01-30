@@ -3,7 +3,9 @@ import EventDictionary from '../Util/Event.dictionary';
 import MapDictionary from '../Util/Map.dictionary';
 import SceneDictionary from '../Util/Scene.dictionary';
 import PlayerBoat from '../Sprite/PlayerBoat.sprite';
+import PlayerHero from '../Sprite/TopDownHero.sprite';
 import WindMachine from '../Util/WindMachine';
+import PlayMode from '../Util/PlayMode.dictionary';
 import Config from '../Config';
 
 /**
@@ -24,6 +26,8 @@ export default class SeaScene extends Phaser.Scene {
         this.levels = data.levels;
         this.newGame = data.newGame;
         this.playMode = data.playMode;
+        this.startX = data.startX ? data.startX : null;
+        this.startY = data.startY ? data.startY : null;
 
         // If this is a new game, broadcast the new game event to listeners.
         if (this.newGame) {
@@ -38,6 +42,7 @@ export default class SeaScene extends Phaser.Scene {
 
         // Player Vars
         this.playerBoat = null;
+        this.playerHero = null;
 
         // Debug Vars
         this.debug = this.sys.game.config.physics.arcade.debug;
@@ -70,12 +75,45 @@ export default class SeaScene extends Phaser.Scene {
         this.createCollisions();
         this.createControls();
         this.configureCamera();
+
+        // Find the first start point on the Map's Player Layer (there should be only 1). If provided, and the scene
+        // doesn't already define a start point, use the start point from the map as the start point for the player
+        // in this scene.  Default to 0,0 if no data provided by scene or map.
+        const startPoint = this.map.findObject( MapDictionary.LAYER.PLAYER, (obj) => obj );
+        this.startX = ( startPoint && ! this.startX ) ? startPoint.x : 0;
+        this.startY = ( startPoint && ! this.startY ) ? startPoint.y : 0;
+
+        // Activate the appropriate actor for the player.
+        if (this.playMode === PlayMode.BOAT) {
+            this.transferToBoat(this.startX, this.startY);
+            this.playerHero.setPosition( this.startX, this.startY);
+        } else if (this.playMode === PlayMode.TOPDOWN) {
+            this.transferToHero(this.startX, this.startY);
+            this.playerBoat.setPosition( this.startX, this.startY );
+        }
     }
 
     /**
      * Standard scene update() method callback
      */
     update() {
+
+        switch( this.playMode ) {
+
+            case(PlayMode.BOAT):
+                this.updateBoatMode();
+                break;
+
+            case(PlayMode.TOPDOWN):
+                this.updateHeroMode()
+                break;
+
+            default: break;
+        }
+
+    }
+
+    updateBoatMode() {
 
         // Update actors.
         this.playerBoat.update(this.cursors);
@@ -90,6 +128,10 @@ export default class SeaScene extends Phaser.Scene {
             // Unlock the pause button when pause button is not being held down.
             this.isPauseLocked = false;
         }
+    }
+
+    updateHeroMode() {
+
     }
 
     /**
@@ -165,9 +207,15 @@ export default class SeaScene extends Phaser.Scene {
      */
     createPlayer() {
         // Seek the boat starting point on the map and instantiate player at that point.
-        this.map.findObject(MapDictionary.LAYER.PLAYER, (boatStart) => {
-            this.playerBoat = new PlayerBoat(this, boatStart.x, boatStart.y);
-        })
+
+
+        this.playerBoat = new PlayerBoat(this, 0, 0);
+        this.playerBoat.width = Config.player.width;
+        this.playerBoat.height = Config.player.height;
+
+        this.playerHero = new PlayerHero(this, 0, 0);
+        this.playerHero.width = Config.player.width;
+        this.playerHero.height = Config.player.height;
     }
 
     /**
@@ -175,7 +223,15 @@ export default class SeaScene extends Phaser.Scene {
      */
     createCollisions() {
         // Player boat and land layer, blocked layer collide.
-        this.physics.add.collider(this.playerBoat, [this.landLayer, this.blockedLayer]);
+        this.physics.add.collider(this.playerBoat, [this.landLayer, this.blockedLayer],
+            function( boat, blocker ) {
+                if ( this.playMode === PlayMode.BOAT && blocker.layer.name === MapDictionary.LAYER.LAND ) {
+                    this.transferToHero( this.playerBoat.x, this.playerBoat.y );
+                }
+            },
+            null,
+            this
+        );
     }
 
     /**
@@ -190,8 +246,30 @@ export default class SeaScene extends Phaser.Scene {
      * Set the camera to follow around the ship.  Set the default level of zoom.
      */
     configureCamera() {
-        this.cameras.main.startFollow(this.playerBoat);
         this.cameras.main.zoom = Config.cameraZoom;
+    }
+
+    transferToHero( x, y ) {
+        this.playMode = PlayMode.TOPDOWN;
+        this.playerBoat.isActive = false;
+        this.playerBoat.stop();
+        this.playerHero.x = x;
+        this.playerHero.y = y;
+        this.playerHero.isActive = true;
+        this.playerHero.visible = true;
+    }
+
+    transferToBoat( x, y ) {
+        this.playMode = PlayMode.BOAT;
+        this.playerBoat.isVisible = true;
+        this.playerBoat.isActive = true;
+        this.playerBoat.x = x;
+        this.playerBoat.y = y;
+
+        this.playerHero.visible = false;
+        this.playerHero.active = false;
+
+        this.cameras.main.startFollow(this.playerBoat);
     }
 
     // Things were weird without the getters and setters in place.  Consider review on ticket #9.
@@ -202,5 +280,7 @@ export default class SeaScene extends Phaser.Scene {
     set debugScene(value) {
         this._debugScene = value;
     }
+
+
 }
 
