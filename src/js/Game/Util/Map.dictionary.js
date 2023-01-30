@@ -1,14 +1,15 @@
 export default {
     LAYER: {
-        'BLOCKED': 'blocked',
-        'LAND': 'land',
-        'PLAYER': 'player'
+        'OCEAN' : 'Sailable Ocean',
+        'BLOCKED': 'Blocked Land',
+        'LAND': 'Walkable Land',
+        'PLAYER': 'Player'
     },
     TILESET: {
-        'ISLAND': 'island'
+        'ISLAND': 'demo2'
     },
     TILE_TYPE: {
-        'STARTING_POSITION': 'startingPosition'
+        'STARTING_POSITION': 'StartingPosition'
     },
     DIRECTION_NAMES: {
         1: 'north',

@@ -6,7 +6,7 @@ export default {
         SPRITE_ATLAS: 'tradewinds.png',
     },
     MAP: {
-        LEVEL_1: 'testisland.json',
+        LEVEL_1: 'demo-1.json',
     },
     ATLAS_NAME: {
         BOAT_ATLAS: 'boatatlas',
